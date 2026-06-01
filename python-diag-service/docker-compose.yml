@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./app/python_diag.db:/app/python_diag.db
+    environment:
+      - DATABASE_URL=sqlite:///./python_diag.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  test:
+    build: .
+    command: pytest tests/ -v --cov=app --cov-report=term-missing
+    volumes:
+      - .:/app
+    profiles:
+      - test
